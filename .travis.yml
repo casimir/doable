@@ -9,9 +9,6 @@ install:
     - go get code.google.com/p/go.tools/cmd/cover
     - go get github.com/axw/gocov/gocov
     - go get github.com/mattn/goveralls
-
-    - go get github.com/coopernurse/gorp
-    - go get github.com/mattn/go-sqlite3
     - go get github.com/smartystreets/goconvey/convey
 
 script:
