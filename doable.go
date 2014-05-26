@@ -1,13 +1,17 @@
 package doable
 
 type Tree struct {
-	// List of available items. It should be set before a call to Doable().
 	Avail []Item
+	Hist  []*Node
 	Root  *Node
 }
 
 func New(root *Node, list []Item) *Tree {
-	return &Tree{list, root}
+	return &Tree{
+		Avail: list,
+		Hist:  nil,
+		Root:  root,
+	}
 }
 
 func (t *Tree) Doable() bool {
@@ -18,6 +22,7 @@ func (t *Tree) process(n *Node) *Node {
 	for i, it := range t.Avail {
 		if it.Match(n.item) {
 			t.Avail = append(t.Avail[:i], t.Avail[i+1:]...)
+			t.Hist = append(t.Hist, n)
 			return nil
 		}
 	}
@@ -36,6 +41,7 @@ func (t *Tree) process(n *Node) *Node {
 	}
 	n.deps = tmp
 	if len(n.deps) == 0 {
+		t.Hist = append(t.Hist, n)
 		return nil
 	} else {
 		return n

@@ -18,8 +18,10 @@ func TestNoDep(t *testing.T) {
 		Convey("It should return if it is doable", func() {
 			tree := New(NewNode(StringItem{"id1"}), nil)
 			So(tree.Doable(), ShouldBeFalse)
+			So(tree.Hist, ShouldBeEmpty)
 			tree.Avail = []Item{}
 			So(tree.Doable(), ShouldBeFalse)
+			So(tree.Hist, ShouldBeEmpty)
 			tree.Avail = list
 			So(tree.Doable(), ShouldBeTrue)
 			So(tree.Avail, ShouldResemble, testList)
@@ -35,9 +37,12 @@ func TestNoDep(t *testing.T) {
 				notUsedItem,
 			}
 			tree := New(NewNode(StringItem{"id1"}), list)
+			hist := []*Node{tree.Root}
+
 			So(tree.Doable(), ShouldBeTrue)
 			So(tree.Doable(), ShouldBeFalse)
 			So(tree.Avail, ShouldResemble, []Item{notUsedItem})
+			So(tree.Hist, ShouldResemble, hist)
 		})
 	})
 }
@@ -90,9 +95,20 @@ func TestDeps(t *testing.T) {
 			//               ↳ id4, node1
 			//                       ↳ id2, id3
 			tree := New(root, list)
+			hist := []*Node{
+				NewNode(list[0]),
+				NewNode(list[1]),
+				NewNode(list[4]),
+				NewNode(list[2]),
+				NewNode(list[3]),
+				node1,
+				node2,
+				root,
+			}
 
 			So(tree.Doable(), ShouldBeTrue)
 			So(tree.Avail, ShouldResemble, []Item{notUsedItem})
+			So(tree.Hist, ShouldResemble, hist)
 		})
 	})
 }
