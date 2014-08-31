@@ -1,37 +1,51 @@
 package doable
 
+type Node struct {
+	deps []*Node
+	Item Item
+	Nb   int
+}
+
+func (n *Node) AddDep(dep ...*Node) {
+	n.deps = append(n.deps, dep...)
+}
+
 type Tree struct {
-	Avail []Item
+	Avail *List
 	Hist  []*Node
 	Root  *Node
 }
 
-func New(root *Node, list []Item) *Tree {
+func New(root *Node, list *List) *Tree {
 	return &Tree{
 		Avail: list,
-		Hist:  nil,
+		Hist:  []*Node{},
 		Root:  root,
 	}
 }
 
 func (t *Tree) Doable() bool {
+	if t.Avail == nil {
+		return false
+	}
 	return t.process(t.Root) == nil
 }
 
 func (t *Tree) process(n *Node) *Node {
-	for i, it := range t.Avail {
-		if it.Match(n.item) {
-			t.Avail = append(t.Avail[:i], t.Avail[i+1:]...)
-			t.Hist = append(t.Hist, n)
-			return nil
-		}
+	if t.Avail.count(n.Item) > 0 {
+		t.Hist = append(t.Hist, n)
+		return nil
 	}
 	if n.deps == nil {
 		return n
 	}
-	// Mandatory 2 loops to avoid memory leak
+	// 2 loops to avoid memory leak
 	for i, d := range n.deps {
+		tmp := n.deps[i]
 		n.deps[i] = t.process(d)
+		if n.deps[i] == nil {
+			t.Avail.del(tmp.Item, tmp.Nb)
+		}
 	}
 	tmp := []*Node{}
 	for _, d := range n.deps {
@@ -41,9 +55,9 @@ func (t *Tree) process(n *Node) *Node {
 	}
 	n.deps = tmp
 	if len(n.deps) == 0 {
+		t.Avail.add1(n.Item)
 		t.Hist = append(t.Hist, n)
 		return nil
-	} else {
-		return n
 	}
+	return n
 }

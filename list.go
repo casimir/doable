@@ -5,11 +5,17 @@ import (
 	"fmt"
 )
 
-type items map[Item]int
+type (
+	Item interface {
+		Match(Item) bool
+	}
 
-type List struct {
-	l items
-}
+	items map[Item]int
+
+	List struct {
+		l items
+	}
+)
 
 func NewList() *List {
 	return &List{
@@ -50,4 +56,13 @@ func (c *List) del1(i Item) (err error) {
 
 func (c *List) size() int {
 	return len(c.l)
+}
+
+type StringItem struct {
+	Value string
+}
+
+func (i StringItem) Match(other Item) bool {
+	it, ok := other.(StringItem)
+	return ok && i.Value == it.Value
 }
