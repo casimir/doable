@@ -12,31 +12,33 @@ func TestInOut(t *testing.T) {
 
 	Convey("Given a list", t, func() {
 		Convey("It should handle I/O operations", func() {
-			c := NewList()
+			l := NewList()
 
-			So(c.size(), ShouldBeZeroValue)
-			So(c.count(item1), ShouldBeZeroValue)
+			So(l.Size(), ShouldBeZeroValue)
+			So(l.Count(item1), ShouldBeZeroValue)
 
-			c.add(item1, 3)
-			c.add1(item2)
+			l.AddN(item1, 3)
+			l.Add(item2)
 
-			So(c.size(), ShouldEqual, 2)
-			So(c.count(item1), ShouldEqual, 3)
-			So(c.count(item2), ShouldEqual, 1)
+			So(l.Size(), ShouldEqual, 2)
+			So(l.Count(item1), ShouldEqual, 3)
+			So(l.Count(item2), ShouldEqual, 1)
 
-			c.del(item1, 2)
-			c.del1(item2)
+			So(l.Clone(), ShouldResemble, l)
 
-			So(c.size(), ShouldEqual, 1)
-			So(c.count(item1), ShouldEqual, 1)
+			l.DelN(item1, 2)
+			l.Del(item2)
+
+			So(l.Size(), ShouldEqual, 1)
+			So(l.Count(item1), ShouldEqual, 1)
 		})
 
 		Convey("It should handle error cases", func() {
-			c := NewList()
-			c.add1(item1)
+			l := NewList()
+			l.Add(item1)
 
-			So(c.del1(item1), ShouldBeNil)
-			So(c.del1(item1), ShouldNotBeNil)
+			So(l.Del(item1), ShouldBeNil)
+			So(l.Del(item1), ShouldNotBeNil)
 		})
 	})
 }

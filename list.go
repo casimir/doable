@@ -1,9 +1,6 @@
 package doable
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
 type (
 	Item interface {
@@ -18,44 +15,49 @@ type (
 )
 
 func NewList() *List {
-	return &List{
-		l: make(items),
+	return &List{l: make(items)}
+}
+
+func (l *List) Add(i Item) {
+	l.AddN(i, 1)
+}
+
+func (l *List) AddN(i Item, n int) {
+	n += l.l[i]
+	l.l[i] = n
+}
+
+func (l *List) Clone() *List {
+	il := make(items, len(l.l))
+	for k, v := range l.l {
+		il[k] = v
 	}
+	return &List{l: il}
 }
 
-func (c *List) add(i Item, n int) {
-	n += c.l[i]
-	c.l[i] = n
+func (l *List) Count(i Item) int {
+	return l.l[i]
 }
 
-func (c *List) add1(i Item) {
-	c.add(i, 1)
+func (l *List) Del(i Item) (err error) {
+	return l.DelN(i, 1)
 }
 
-func (c *List) count(i Item) int {
-	return c.l[i]
-}
-
-func (c *List) del(i Item, n int) (err error) {
-	n = c.l[i] - n
+func (l *List) DelN(i Item, n int) (err error) {
+	n = l.l[i] - n
 	if n > 0 {
-		c.l[i] = n
+		l.l[i] = n
 		return nil
 	} else if n == 0 {
-		delete(c.l, i)
+		delete(l.l, i)
 		return nil
 	} else {
-		msg := fmt.Sprintf("Not enough elements: %s < %s", n, c.l[i])
-		return errors.New(msg)
+		return fmt.Errorf("Not enough elements: %s < %s", n, l.l[i])
 	}
 }
 
-func (c *List) del1(i Item) (err error) {
-	return c.del(i, 1)
-}
-
-func (c *List) size() int {
-	return len(c.l)
+func (l *List) Size() int {
+	return len(l.l)
 }
 
 type StringItem struct {

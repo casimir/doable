@@ -10,9 +10,20 @@ func (n *Node) AddDep(dep ...*Node) {
 	n.deps = append(n.deps, dep...)
 }
 
+func (n *Node) ListDeps() *List {
+	ret := NewList()
+	for _, it := range n.deps {
+		ret.AddN(it.Item, it.Nb)
+	}
+	return ret
+}
+
+// Tree represents a dependency tree and its context, including available
+// dependencies and resolution history if doable or missing dpendencies if not.
 type Tree struct {
 	Avail *List
 	Hist  []*Node
+	Miss  *List
 	Root  *Node
 }
 
@@ -32,10 +43,12 @@ func (t *Tree) Doable() bool {
 }
 
 func (t *Tree) process(n *Node) *Node {
-	if t.Avail.count(n.Item) > 0 {
+	// Exists already.
+	if t.Avail.Count(n.Item) > 0 {
 		t.Hist = append(t.Hist, n)
 		return nil
 	}
+	// Doesn't exist and can't be done.
 	if n.deps == nil {
 		return n
 	}
@@ -44,7 +57,7 @@ func (t *Tree) process(n *Node) *Node {
 		tmp := n.deps[i]
 		n.deps[i] = t.process(d)
 		if n.deps[i] == nil {
-			t.Avail.del(tmp.Item, tmp.Nb)
+			t.Avail.DelN(tmp.Item, tmp.Nb)
 		}
 	}
 	tmp := []*Node{}
@@ -55,9 +68,10 @@ func (t *Tree) process(n *Node) *Node {
 	}
 	n.deps = tmp
 	if len(n.deps) == 0 {
-		t.Avail.add1(n.Item)
+		t.Avail.Add(n.Item)
 		t.Hist = append(t.Hist, n)
 		return nil
 	}
+	t.Miss = n.ListDeps()
 	return n
 }

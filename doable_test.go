@@ -13,9 +13,9 @@ func TestNoDep(t *testing.T) {
 
 	Convey("Given an Item and an Item list", t, func() {
 		list := NewList()
-		list.add1(item1)
-		list.add1(item2)
-		list.add1(itemNotUsed)
+		list.Add(item1)
+		list.Add(item2)
+		list.Add(itemNotUsed)
 
 		Convey("It should return if it is doable", func() {
 			tree := New(&Node{Item: item1, Nb: 1}, nil)
@@ -36,12 +36,12 @@ func TestNoDep(t *testing.T) {
 
 		Convey("When it is doable it should update the history", func() {
 			list = NewList()
-			list.add1(item1)
-			list.add1(itemNotUsed)
+			list.Add(item1)
+			list.Add(itemNotUsed)
 
 			testList := NewList()
-			testList.add1(item1)
-			testList.add1(itemNotUsed)
+			testList.Add(item1)
+			testList.Add(itemNotUsed)
 
 			tree := New(&Node{Item: item1, Nb: 1}, list)
 			hist := []*Node{tree.Root}
@@ -66,8 +66,8 @@ func TestDeps(t *testing.T) {
 
 		Convey("When dependencies are not satisfied it should return it is not doable", func() {
 			list := NewList()
-			list.add1(item1)
-			list.add1(itemNotUsed)
+			list.Add(item1)
+			list.Add(itemNotUsed)
 
 			root := &Node{Item: StringItem{"root"}, Nb: 1}
 			root.AddDep(
@@ -77,26 +77,30 @@ func TestDeps(t *testing.T) {
 
 			tree := New(root, list)
 
+			missing := NewList()
+			missing.Add(itemNotHere)
+
 			expected := &Node{Item: root.Item, Nb: 1}
 			expected.AddDep(&Node{Item: itemNotHere, Nb: 1})
 
 			So(tree.Doable(), ShouldBeFalse)
 			So(tree.Avail, ShouldResemble, list)
+			So(tree.Miss, ShouldResemble, missing)
 			So(tree.Root, ShouldResemble, expected)
 		})
 
 		Convey("When dependencies are satisfied it should return it is doable", func() {
 			list := NewList()
-			list.add1(item0)
-			list.add1(item1)
-			list.add1(item2)
-			list.add1(item3)
-			list.add1(item4)
-			list.add1(itemNotUsed)
+			list.Add(item0)
+			list.Add(item1)
+			list.Add(item2)
+			list.Add(item3)
+			list.Add(item4)
+			list.Add(itemNotUsed)
 
 			testList := NewList()
-			testList.add1(itemRoot)
-			testList.add1(itemNotUsed)
+			testList.Add(itemRoot)
+			testList.Add(itemNotUsed)
 
 			node1 := &Node{Item: StringItem{"node 1"}, Nb: 1}
 			node1.AddDep(
@@ -144,11 +148,11 @@ func TestMulti(t *testing.T) {
 
 	Convey("Given a node with Nb > 1", t, func() {
 		list := NewList()
-		list.add(item0, 2)
-		list.add(item1, 4)
+		list.AddN(item0, 2)
+		list.AddN(item1, 4)
 
 		testList := NewList()
-		testList.add1(itemRoot)
+		testList.Add(itemRoot)
 
 		Convey("It should resolve the dependencies", func() {
 			root := &Node{Item: itemRoot, Nb: 1}
@@ -173,6 +177,7 @@ func TestStringItem(t *testing.T) {
 		So(item1.Match(item1), ShouldBeTrue)
 		So(item1.Match(item1b), ShouldBeTrue)
 		So(item1.Match(item2), ShouldBeFalse)
+		So(item1.Match(MockItem{}), ShouldBeFalse)
 	})
 }
 
