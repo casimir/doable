@@ -24,14 +24,14 @@ type Tree struct {
 	Avail *List
 	Hist  []*Node
 	Miss  *List
-	Root  *Node
+	root  *Node
 }
 
 func New(root *Node, list *List) *Tree {
 	return &Tree{
 		Avail: list,
 		Hist:  []*Node{},
-		Root:  root,
+		root:  root,
 	}
 }
 
@@ -39,7 +39,7 @@ func (t *Tree) Doable() bool {
 	if t.Avail == nil {
 		return false
 	}
-	return t.process(t.Root) == nil
+	return t.process(t.root) == nil
 }
 
 func (t *Tree) process(n *Node) *Node {

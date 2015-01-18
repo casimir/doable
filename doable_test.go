@@ -28,9 +28,9 @@ func TestNoDep(t *testing.T) {
 			tree.Avail = list
 			So(tree.Doable(), ShouldBeTrue)
 			So(tree.Avail, ShouldResemble, list)
-			tree.Root = &Node{Item: MockItem{}, Nb: 1}
+			tree.root = &Node{Item: MockItem{}, Nb: 1}
 			So(tree.Doable(), ShouldBeFalse)
-			tree.Root = &Node{Item: StringItem{"wrongId"}, Nb: 1}
+			tree.root = &Node{Item: StringItem{"wrongId"}, Nb: 1}
 			So(tree.Doable(), ShouldBeFalse)
 		})
 
@@ -44,7 +44,7 @@ func TestNoDep(t *testing.T) {
 			testList.Add(itemNotUsed)
 
 			tree := New(&Node{Item: item1, Nb: 1}, list)
-			hist := []*Node{tree.Root}
+			hist := []*Node{tree.root}
 
 			So(tree.Doable(), ShouldBeTrue)
 			So(tree.Avail, ShouldResemble, testList)
@@ -86,7 +86,7 @@ func TestDeps(t *testing.T) {
 			So(tree.Doable(), ShouldBeFalse)
 			So(tree.Avail, ShouldResemble, list)
 			So(tree.Miss, ShouldResemble, missing)
-			So(tree.Root, ShouldResemble, expected)
+			So(tree.root, ShouldResemble, expected)
 		})
 
 		Convey("When dependencies are satisfied it should return it is doable", func() {
