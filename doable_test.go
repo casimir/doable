@@ -183,6 +183,10 @@ func TestStringItem(t *testing.T) {
 
 type MockItem struct{}
 
+func (i MockItem) ID() string {
+	return ""
+}
+
 func (i MockItem) Match(other Item) bool {
 	return false
 }

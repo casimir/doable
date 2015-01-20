@@ -18,15 +18,17 @@ func TestInOut(t *testing.T) {
 			So(l.Count(item1), ShouldBeZeroValue)
 
 			l.AddN(item1, 3)
+			l.Add(item1)
 			l.Add(item2)
 
 			So(l.Size(), ShouldEqual, 2)
-			So(l.Count(item1), ShouldEqual, 3)
+			So(l.Count(item1), ShouldEqual, 4)
 			So(l.Count(item2), ShouldEqual, 1)
 
 			So(l.Clone(), ShouldResemble, l)
 
 			l.DelN(item1, 2)
+			l.Del(item1)
 			l.Del(item2)
 
 			So(l.Size(), ShouldEqual, 1)
