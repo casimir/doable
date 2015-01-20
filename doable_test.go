@@ -183,7 +183,7 @@ func TestStringItem(t *testing.T) {
 
 type MockItem struct{}
 
-func (i MockItem) ID() string {
+func (i MockItem) UID() string {
 	return ""
 }
 

@@ -4,7 +4,7 @@ import "fmt"
 
 type (
 	Item interface {
-		ID() string
+		UID() string
 		Match(Item) bool
 	}
 
@@ -29,10 +29,10 @@ func (l *List) Add(i Item) {
 }
 
 func (l *List) AddN(i Item, n int) {
-	if it, ok := l.l[i.ID()]; ok {
+	if it, ok := l.l[i.UID()]; ok {
 		n += it.n
 	}
-	l.l[i.ID()] = tuple{item: i, n: n}
+	l.l[i.UID()] = tuple{item: i, n: n}
 }
 
 func (l *List) Clone() *List {
@@ -44,7 +44,7 @@ func (l *List) Clone() *List {
 }
 
 func (l *List) Count(i Item) int {
-	if it, ok := l.l[i.ID()]; ok {
+	if it, ok := l.l[i.UID()]; ok {
 		return it.n
 	}
 	return 0
@@ -57,17 +57,17 @@ func (l *List) Del(i Item) (err error) {
 func (l *List) DelN(i Item, n int) (err error) {
 	n *= -1
 
-	if it, ok := l.l[i.ID()]; ok {
+	if it, ok := l.l[i.UID()]; ok {
 		n = it.n + n
 	}
 	if n > 0 {
-		l.l[i.ID()] = tuple{item: i, n: n}
+		l.l[i.UID()] = tuple{item: i, n: n}
 		return nil
 	} else if n == 0 {
-		delete(l.l, i.ID())
+		delete(l.l, i.UID())
 		return nil
 	} else {
-		return fmt.Errorf("Not enough elements: %s < %s", n, l.l[i.ID()])
+		return fmt.Errorf("Not enough elements: %s < %s", n, l.l[i.UID()])
 	}
 }
 
@@ -79,7 +79,7 @@ type StringItem struct {
 	Value string
 }
 
-func (i StringItem) ID() string {
+func (i StringItem) UID() string {
 	return i.Value
 }
 
