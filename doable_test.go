@@ -1,6 +1,8 @@
 package doable
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -181,6 +183,29 @@ func TestStringItem(t *testing.T) {
 	})
 }
 
+func TestDump(t *testing.T) {
+	expected := []byte(exportedTree)
+	outFile := os.TempDir() + "/doable_test.dot"
+
+	root := &Node{Item: StringItem{"root"}, Nb: 2}
+	dep1 := &Node{Item: StringItem{"item1"}, Nb: 4}
+	dep2 := &Node{Item: StringItem{"item2"}, Nb: 1}
+	dep3 := &Node{Item: StringItem{"item4"}, Nb: 2}
+	dep4 := &Node{Item: StringItem{"item1"}, Nb: 2}
+
+	dep3.AddDep(dep4)
+	dep2.AddDep(dep3)
+	root.AddDep(dep1, dep2)
+	tree := New(root, nil)
+
+	Convey("It should generate a DOT file for the whole tree", t, func() {
+		os.Remove(outFile)
+		So(tree.Dump(outFile), ShouldBeNil)
+		got, _ := ioutil.ReadFile(outFile)
+		So(got, ShouldResemble, expected)
+	})
+}
+
 type MockItem struct{}
 
 func (i MockItem) UID() string {
@@ -190,3 +215,16 @@ func (i MockItem) UID() string {
 func (i MockItem) Match(other Item) bool {
 	return false
 }
+
+var exportedTree string = `digraph root {
+  root21 [label="root (2)"];
+  item142 [label="item1 (4)"];
+  item212 [label="item2 (1)"];
+  item423 [label="item4 (2)"];
+  item124 [label="item1 (2)"];
+
+  root21 -> item142;
+  root21 -> item212;
+  item212 -> item423;
+  item423 -> item124;
+}`

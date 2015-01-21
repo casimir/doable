@@ -1,5 +1,11 @@
 package doable
 
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+)
+
 type Node struct {
 	deps []*Node
 	Item Item
@@ -74,4 +80,34 @@ func (t *Tree) process(n *Node) *Node {
 	}
 	t.Miss = n.ListDeps()
 	return n
+}
+
+// Dump save a representatio of the tree in the given file. The format used is
+// DOT (http://en.wikipedia.org/wiki/DOT_%28graph_description_language%29).
+func (t *Tree) Dump(path string) error {
+	var headBuf bytes.Buffer
+	var bodyBuf bytes.Buffer
+	dump_rec(t.root, &headBuf, &bodyBuf, 1)
+
+	var buf bytes.Buffer
+	buf.WriteString("digraph " + t.root.Item.UID() + " {\n")
+	buf.Write(headBuf.Bytes())
+	buf.WriteRune('\n')
+	buf.Write(bodyBuf.Bytes())
+	buf.WriteRune('}')
+	return ioutil.WriteFile(path, buf.Bytes(), 0644)
+}
+
+func dump_rec(n *Node, head, body *bytes.Buffer, lvl int) {
+	label := fmt.Sprintf("  %[1]s%[2]d%d [label=\"%[1]s (%[2]d)\"];\n",
+		n.Item.UID(), n.Nb, lvl)
+	head.WriteString(label)
+
+	for _, it := range n.deps {
+		line := fmt.Sprintf("  %s%d%d -> %s%d%d;\n",
+			n.Item.UID(), n.Nb, lvl,
+			it.Item.UID(), it.Nb, lvl+1)
+		body.WriteString(line)
+		dump_rec(it, head, body, lvl+1)
+	}
 }
