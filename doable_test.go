@@ -217,11 +217,11 @@ func (i MockItem) Match(other Item) bool {
 }
 
 var exportedTree string = `digraph root {
-  root21 [label="root (2)"];
-  item142 [label="item1 (4)"];
-  item212 [label="item2 (1)"];
-  item423 [label="item4 (2)"];
-  item124 [label="item1 (2)"];
+  root21 [label="root (x2)"];
+  item142 [label="item1 (x4)"];
+  item212 [label="item2 (x1)"];
+  item423 [label="item4 (x2)"];
+  item124 [label="item1 (x2)"];
 
   root21 -> item142;
   root21 -> item212;

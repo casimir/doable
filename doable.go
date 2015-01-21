@@ -24,6 +24,11 @@ func (n *Node) ListDeps() *List {
 	return ret
 }
 
+// String implemenst Stringer for Node.
+func (n Node) String() string {
+	return fmt.Sprintf("%s (x%d)", n.Item.UID(), n.Nb)
+}
+
 // Tree represents a dependency tree and its context, including available
 // dependencies and resolution history if doable or missing dpendencies if not.
 type Tree struct {
@@ -99,8 +104,8 @@ func (t *Tree) Dump(path string) error {
 }
 
 func dump_rec(n *Node, head, body *bytes.Buffer, lvl int) {
-	label := fmt.Sprintf("  %[1]s%[2]d%d [label=\"%[1]s (%[2]d)\"];\n",
-		n.Item.UID(), n.Nb, lvl)
+	label := fmt.Sprintf("  %s%d%d [label=\"%s\"];\n",
+		n.Item.UID(), n.Nb, lvl, n)
 	head.WriteString(label)
 
 	for _, it := range n.deps {
