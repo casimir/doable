@@ -16,9 +16,15 @@ func (n *Node) AddDep(dep ...*Node) {
 	n.deps = append(n.deps, dep...)
 }
 
-func (n *Node) ListDeps() *List {
+func (n *Node) listDeps(avail *List) *List {
+	if avail == nil {
+		avail = NewList()
+	}
 	ret := NewList()
 	for _, it := range n.deps {
+		if n := avail.Count(it.Item); n > 0 {
+			it.Nb -= n
+		}
 		ret.AddN(it.Item, it.Nb)
 	}
 	return ret
@@ -55,7 +61,7 @@ func (t *Tree) Doable() bool {
 
 func (t *Tree) process(n *Node) *Node {
 	// Exists already.
-	if t.Avail.Count(n.Item) > 0 {
+	if t.Avail.Count(n.Item) >= n.Nb {
 		t.Hist = append(t.Hist, n)
 		return nil
 	}
@@ -83,7 +89,7 @@ func (t *Tree) process(n *Node) *Node {
 		t.Hist = append(t.Hist, n)
 		return nil
 	}
-	t.Miss = n.ListDeps()
+	t.Miss = n.listDeps(t.Avail)
 	return n
 }
 

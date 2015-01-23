@@ -56,17 +56,17 @@ func TestNoDep(t *testing.T) {
 }
 
 func TestDeps(t *testing.T) {
-	Convey("Given an Item and an Item list", t, func() {
-		item0 := StringItem{"id0"}
-		item1 := StringItem{"id1"}
-		item2 := StringItem{"id2"}
-		item3 := StringItem{"id3"}
-		item4 := StringItem{"id4"}
-		itemNotUsed := StringItem{"not used"}
-		itemNotHere := StringItem{"not here"}
-		itemRoot := StringItem{"root"}
+	item0 := StringItem{"id0"}
+	item1 := StringItem{"id1"}
+	item2 := StringItem{"id2"}
+	item3 := StringItem{"id3"}
+	item4 := StringItem{"id4"}
+	itemNotUsed := StringItem{"not used"}
+	itemNotHere := StringItem{"not here"}
+	itemRoot := StringItem{"root"}
 
-		Convey("When dependencies are not satisfied it should return it is not doable", func() {
+	Convey("Given an Item and an Item list", t, func() {
+		Convey("When dependencies are missing it should return it is not doable", func() {
 			list := NewList()
 			list.Add(item1)
 			list.Add(itemNotUsed)
@@ -84,6 +84,31 @@ func TestDeps(t *testing.T) {
 
 			expected := &Node{Item: root.Item, Nb: 1}
 			expected.AddDep(&Node{Item: itemNotHere, Nb: 1})
+
+			So(tree.Doable(), ShouldBeFalse)
+			So(tree.Avail, ShouldResemble, list)
+			So(tree.Miss, ShouldResemble, missing)
+			So(tree.root, ShouldResemble, expected)
+		})
+
+		Convey("When there is too few dependencies it should return it is not doable", func() {
+			list := NewList()
+			list.Add(item1)
+			list.AddN(item2, 2)
+
+			root := &Node{Item: StringItem{"root"}, Nb: 1}
+			root.AddDep(
+				&Node{Item: item1, Nb: 1},
+				&Node{Item: item2, Nb: 5},
+			)
+
+			tree := New(root, list)
+
+			missing := NewList()
+			missing.AddN(item2, 3)
+
+			expected := &Node{Item: root.Item, Nb: 1}
+			expected.AddDep(&Node{Item: item2, Nb: 3})
 
 			So(tree.Doable(), ShouldBeFalse)
 			So(tree.Avail, ShouldResemble, list)
@@ -140,6 +165,20 @@ func TestDeps(t *testing.T) {
 			So(tree.Avail, ShouldResemble, testList)
 			So(tree.Hist, ShouldResemble, hist)
 		})
+	})
+
+	Convey("Given an Item and an empty Item list", t, func() {
+		root := &Node{Item: itemRoot, Nb: 1}
+		root.AddDep(
+			&Node{Item: item0, Nb: 1},
+			&Node{Item: item1, Nb: 2},
+		)
+		tree := New(root, NewList())
+
+		So(tree.Doable(), ShouldBeFalse)
+		So(tree.Avail, ShouldResemble, NewList())
+		So(tree.Hist, ShouldBeEmpty)
+		So(tree.Miss, ShouldResemble, root.listDeps(nil))
 	})
 }
 

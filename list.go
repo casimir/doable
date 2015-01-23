@@ -50,11 +50,11 @@ func (l *List) Count(i Item) int {
 	return 0
 }
 
-func (l *List) Del(i Item) (err error) {
+func (l *List) Del(i Item) error {
 	return l.DelN(i, 1)
 }
 
-func (l *List) DelN(i Item, n int) (err error) {
+func (l *List) DelN(i Item, n int) error {
 	n *= -1
 
 	if it, ok := l.l[i.UID()]; ok {
