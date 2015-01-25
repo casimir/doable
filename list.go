@@ -1,6 +1,9 @@
 package doable
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type (
 	Item interface {
@@ -8,20 +11,20 @@ type (
 		Match(Item) bool
 	}
 
-	tuple struct {
+	Tuple struct {
 		item Item
 		n    int
 	}
 
-	items map[string]tuple
+	Items map[string]Tuple
 
 	List struct {
-		l items
+		l Items
 	}
 )
 
 func NewList() *List {
-	return &List{l: make(items)}
+	return &List{l: make(Items)}
 }
 
 func (l *List) Add(i Item) {
@@ -32,11 +35,11 @@ func (l *List) AddN(i Item, n int) {
 	if it, ok := l.l[i.UID()]; ok {
 		n += it.n
 	}
-	l.l[i.UID()] = tuple{item: i, n: n}
+	l.l[i.UID()] = Tuple{item: i, n: n}
 }
 
 func (l *List) Clone() *List {
-	il := make(items, len(l.l))
+	il := make(Items, len(l.l))
 	for k, v := range l.l {
 		il[k] = v
 	}
@@ -61,7 +64,7 @@ func (l *List) DelN(i Item, n int) error {
 		n = it.n + n
 	}
 	if n > 0 {
-		l.l[i.UID()] = tuple{item: i, n: n}
+		l.l[i.UID()] = Tuple{item: i, n: n}
 		return nil
 	} else if n == 0 {
 		delete(l.l, i.UID())
@@ -73,6 +76,14 @@ func (l *List) DelN(i Item, n int) error {
 
 func (l *List) Size() int {
 	return len(l.l)
+}
+
+func (l *List) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.l)
+}
+
+func (l *List) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, &l.l)
 }
 
 type StringItem struct {

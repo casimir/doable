@@ -1,6 +1,7 @@
 package doable
 
 import (
+	"encoding/json"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -41,6 +42,17 @@ func TestInOut(t *testing.T) {
 
 			So(l.Del(item1), ShouldBeNil)
 			So(l.Del(item1), ShouldNotBeNil)
+		})
+
+		Convey("It should be serializable in JSON", func() {
+			l := NewList()
+			l.Add(item1)
+			l.Add(item2)
+
+			raw, _ := json.Marshal(l)
+			got := NewList()
+			json.Unmarshal(raw, got)
+			So(got, ShouldResemble, l)
 		})
 	})
 }
